@@ -19,7 +19,7 @@ Auth.prototype.login = function(req, res) {
       return JSON.stringify(retObj);
     }
 
-    var dbUserObj = auth.validate(username, password);
+    var dbUserObj = this.validate(username, password);
 
     if (!dbUserObj) { // If authentication fails, we send a 401 back
       res.status(401);
