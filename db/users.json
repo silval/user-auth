@@ -1,0 +1,16 @@
+[{
+    "_id" : "100000001",
+    "description" : "Poste",
+    "icon" : "marker01.png",
+    "cost" : 1
+},{
+    "_id" : "100000002",
+    "description" : "Cordoalha",
+    "icon" : "marker03.png",
+    "cost" : 0
+},{
+    "_id" : "100000003",
+    "description" : "Rack",
+    "icon" : "rack01.png",
+    "cost" : 0
+  }]
