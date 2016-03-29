@@ -9,18 +9,16 @@ var auth = {
   login: function(req, res) {
     var username = req.body.username || '';
     var password = req.body.password || '';
-    // console.log("username="+username+", password="+password);
-    // console.log("req.body=",req.body);
     if (username == '' || password == '') {
-      res.status(401);
-      res.json({
+      var retObj = {
         "status": 401,
         "message": "INVALID_CREDENTIALS"
-      });
-      return;
+      };
+      res.status(401);
+      res.json(retObj);
+      return JSON.stringify(retObj);
     }
 
-    // Fire a query to your DB and check if the credentials are valid
     var dbUserObj = auth.validate(username, password);
 
     if (!dbUserObj) { // If authentication fails, we send a 401 back
@@ -32,11 +30,9 @@ var auth = {
       return;
     }
 
-    if (dbUserObj) {
-      // If authentication is success, we will generate a token
-      // and dispatch it to the client
-      res.json(genToken(dbUserObj));
-    }
+    // authentication is successfull, then generate a token and dispatch it to the client
+    res.json(genToken(dbUserObj));
+
   },
   validate: function(username, password) {
     // spoofing the DB response for simplicity
