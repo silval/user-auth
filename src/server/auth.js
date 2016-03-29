@@ -19,7 +19,7 @@ Auth.prototype.login = function(req, res) {
       return JSON.stringify(retObj);
     }
 
-    var dbUserObj = this.validate(username, password);
+    var dbUserObj = validate(username, password);
 
     if (!dbUserObj) { // If authentication fails, we send a 401 back
       res.status(401);
@@ -71,6 +71,7 @@ Auth.prototype.validateRequest= function(req, res, next) {
     return returnFunction(res, 401, "INVALID_TOKEN_OR_KEY");
   }
 };
+
 Auth.prototype.validate = function(username, password) {
     // spoofing the DB response for simplicity
     var dbUserObj = this.test_genDummyUserObj();
