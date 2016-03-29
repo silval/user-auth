@@ -11,4 +11,10 @@ describe('auth unit tests', function() {
     expect(auth.login({ "body" : {} },{ "status" : function () {} , "json" : function() {}},function(msg){ return msg})).to.have.string("INVALID_CREDENTIALS");
   });
 
+  // authorizeUser
+  it('authorizeUser() should return null if user is not authorized', function() {
+    expect(auth.authorizeUser(auth.test_genDummyInvalidUserObj().username)).to.have.null;
+  });
+
+
 });

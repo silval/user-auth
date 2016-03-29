@@ -1,5 +1,5 @@
 var jwt = require('jwt-simple');
-var validateUser = require('./auth').validateUser;
+var authorizeUser = require('./auth').authorizeUser;
 
 module.exports = function(req, res, next) {
 
@@ -15,54 +15,36 @@ module.exports = function(req, res, next) {
       var decoded = jwt.decode(token, require('./secret.js')());
 
       if (decoded.exp <= Date.now()) {
-        res.status(400);
-        res.json({
-          "status": 400,
-          "message": "Token Expired"
-        });
-        return;
+        return returnFunction(res, 400, "TOKEN_EXPIRED");
+      }
+      if (decoded.username != key) {
+        // Token username does not match username in request, respond back with a 401
+        return returnFunction(res, 401, "INVALID_CREDENTIALS");
       }
 
       // Authorize the user to see if s/he can access our resources
+      var dbUser = authorizeUser(key, req.url); // The key would be the logged in user's username
 
-      var dbUser = validateUser(key); // The key would be the logged in user's username
-      if (dbUser) {
-
-
-        if ((req.url.indexOf('admin') >= 0 && dbUser.role == 'admin') || (req.url.indexOf('admin') < 0 && req.url.indexOf('/api/v1/') >= 0)) {
-          next(); // To move to next middleware
-        } else {
-          res.status(403);
-          res.json({
-            "status": 403,
-            "message": "Not Authorized"
-          });
-          return;
-        }
+      if (dbUser && dbUser != null) {
+        next(); // To move to next middleware
       } else {
-        // No user with this name exists, respond back with a 401
-        res.status(401);
-        res.json({
-          "status": 401,
-          "message": "Invalid User"
-        });
-        return;
+        return returnFunction(res, 403, "NOT_AUTHORIZED");
       }
 
     } catch (err) {
-      res.status(500);
-      res.json({
-        "status": 500,
-        "message": "Error decoding the token",
-        "error": err
-      });
+      return returnFunction(res, 500, "TOKEN_DECODING_ERROR");
     }
   } else {
-    res.status(401);
-    res.json({
-      "status": 401,
-      "message": "Invalid Token or Key"
-    });
-    return;
+    return returnFunction(res, 401, "INVALID_TOKEN_OR_KEY");
   }
 };
+// private methods
+function returnFunction(res, statusCode, message) {
+  var retObj= {
+    "status": statusCode,
+    "message": message
+  };
+  res.status(statusCode);
+  res.json(retObj);
+  return JSON.stringify(retObj);
+}

@@ -31,34 +31,42 @@ var auth = {
     }
 
     // authentication is successfull, then generate a token and dispatch it to the client
-    res.json(genToken(dbUserObj));
+    res.json(genToken(dbUserObj,7,require('./secret')()));
 
   },
   validate: function(username, password) {
     // spoofing the DB response for simplicity
-    var dbUserObj = { // spoofing a userobject from the DB.
-      name: 'arvind',
-      role: 'admin',
-      username: 'arvind@myapp.com'
-    };
+    var dbUserObj = this.test_genDummyUserObj();
     return dbUserObj;
   },
-  validateUser: function(username) {
+  authorizeUser: function(username, url) {
     // spoofing the DB response for simplicity
-    var dbUserObj = { // spoofing a userobject from the DB.
-      name: 'arvind',
-      role: 'admin',
-      username: 'arvind@myapp.com'
-    };
+    var dbUserObj = null;
+    if (username == "joe@doe.com") {
+      dbUserObj = this.test_genDummyUserObj();
+    }
     return dbUserObj;
   },
+  test_genExpiredToken: function(userObj,secret) {
+    return genToken(userObj,0,secret);
+  },
+  test_genValidToken: function(userObj, secret) {
+    return genToken(userObj,1,secret);
+  },
+  test_genDummyInvalidUserObj: function() {
+    return { name: 'joebot', role: 'admin', username: 'joe@bot.com'};
+  },
+  test_genDummyUserObj: function() {
+    return { name: 'joedoe', role: 'admin', username: 'joe@doe.com'};
+  }
 }
-// private method
-function genToken(user) {
-  var expires = expiresIn(7); // 7 days
+// private methods
+function genToken(user, nbrOfDays, secret) {
+  var expires = expiresIn(nbrOfDays); // 7 days
   var token = jwt.encode({
-    exp: expires
-  }, require('./secret')());
+    exp: expires,
+    username: user.username
+  }, secret);
   return {
     token: token,
     expires: expires,
