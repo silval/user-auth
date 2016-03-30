@@ -19,7 +19,7 @@ Auth.prototype.login = function(req, res) {
       return JSON.stringify(retObj);
     }
 
-    var dbUserObj = validate(username, password);
+    var dbUserObj = new Auth().validate(username, password);
 
     if (!dbUserObj) { // If authentication fails, we send a 401 back
       res.status(401);
@@ -56,7 +56,7 @@ Auth.prototype.validateRequest= function(req, res, next) {
       }
 
       // Authorize the user to see if s/he can access our resources
-      var dbUser = this.authorizeUser(key, req.url); // The key would be the logged in user's username
+      var dbUser = new Auth().authorizeUser(key, req.url); // The key would be the logged in user's username
 
       if (dbUser && dbUser != null) {
         next(); // To move to next middleware
@@ -74,7 +74,7 @@ Auth.prototype.validateRequest= function(req, res, next) {
 
 Auth.prototype.validate = function(username, password) {
     // spoofing the DB response for simplicity
-    var dbUserObj = this.test_genDummyUserObj();
+    var dbUserObj = new Auth().test_genDummyUserObj();
     return dbUserObj;
 };
 
@@ -82,7 +82,7 @@ Auth.prototype.authorizeUser = function(username, url) {
     // spoofing the DB response for simplicity
     var dbUserObj = null;
     if (username == "joe@doe.com") {
-      dbUserObj = this.test_genDummyUserObj();
+      dbUserObj = new Auth().test_genDummyUserObj();
     }
     return dbUserObj;
 };
