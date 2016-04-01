@@ -1,4 +1,5 @@
 var jwt = require('jwt-simple');
+var users_crud = require('./Users');
 // mongoskin = require('mongoskin');
 
 // this function requires "req.collections.users to be in the request object
@@ -101,6 +102,7 @@ Auth.prototype.test_genDummyInvalidUserObj = function() {
 Auth.prototype.test_genDummyUserObj = function() {
     return { name: 'joedoe', role: 'admin', username: 'joe@doe.com'};
 };
+Auth.prototype.usersCRUD = users_crud;
 
 // private methods
 function genToken(user, nbrOfDays, secret) {
