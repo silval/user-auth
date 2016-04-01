@@ -1,21 +1,25 @@
 [{
     "username" : "joe@doe.com",
+    "password" : "password",
     "name" : "Joe Doe",
     "role" : "admin",
     "organization" : "thewall"
   },
   {
     "username" : "admin@admin.com",
+    "password" : "password",
     "name" : "Admin Admin",
     "role" : "admin",
     "organization" : "system"
   },{
     "username" : "john@snow.com",
+    "password" : "password",
     "name" : "John Snow",
     "role" : "user",
     "organization" : "thewall"
   },{
     "username" : "tyrion@lannyster.com",
+    "password" : "password",
     "name" : "John Snow",
     "role" : "admin",
     "organization" : "lannyster"

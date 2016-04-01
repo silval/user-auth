@@ -23,19 +23,34 @@ Auth.prototype.login = function(req, res) {
       return JSON.stringify(retObj);
     }
 
-    var dbUserObj = new Auth().authenticateUser(req, username, password);
+    var dbUserObj = null; // new Auth().test_genDummyUserObj();
 
-    if (!dbUserObj) { // If authentication fails, we send a 401 back
-      res.status(401);
-      res.json({
-        "status": 401,
-        "message": "INVALID_CREDENTIALS"
-      });
-      return;
-    }
+    var recordQueryString = { "username" : username, "password" : password };
 
-    // authentication is successfull, then generate a token and dispatch it to the client
-    res.json(genToken(dbUserObj,7,require('./secret')()));
+    req.collections.users.find(recordQueryString).toArray(function(error, records) {
+
+      if (error) {
+        var retObj = {
+          "status": 500,
+          "message": "Error while authenticating user."
+        };
+        res.status(500);
+        res.json(retObj);
+        return JSON.stringify(retObj);
+      }
+
+      if (records.length == 0) {
+        res.status(401);
+        res.json({
+          "status": 401,
+          "message": "INVALID_CREDENTIALS"
+        });
+        return;
+      }
+      // authentication is successfull, then generate a token and dispatch it to the client
+      res.json(genToken(records[0],7,require('./secret')()));
+
+    });
 
 };
 Auth.prototype.validateRequest= function(req, res, next) {
@@ -59,14 +74,14 @@ Auth.prototype.validateRequest= function(req, res, next) {
         return returnFunction(res, 401, "INVALID_CREDENTIALS");
       }
 
-      // Authorize the user to see if s/he can access our resources
-      var dbUser = new Auth().authorizeUser(key, req); // The key would be the logged in user's username
-
-      if (dbUser && dbUser != null) {
-        next(); // To move to next middleware
-      } else {
+      // TBD Authorize the user to see if s/he can access our resources
+      // decode.organization
+      // decode.role
+      if (false) {   // add logic to restrict access here (e.g. check for url, org and role)
         return returnFunction(res, 403, "NOT_AUTHORIZED");
       }
+
+      next(); // To move to next middleware
 
     } catch (err) {
       return returnFunction(res, 500, "TOKEN_DECODING_ERROR");
@@ -76,20 +91,6 @@ Auth.prototype.validateRequest= function(req, res, next) {
   }
 };
 
-Auth.prototype.authenticateUser = function(req, username, password) {
-    // spoofing the DB response for simplicity
-    var dbUserObj = new Auth().test_genDummyUserObj();
-    return dbUserObj;
-};
-
-Auth.prototype.authorizeUser = function(username, req) {
-    // spoofing the DB response for simplicity
-    var dbUserObj = null;
-    if (username == "joe@doe.com") {
-      dbUserObj = new Auth().test_genDummyUserObj();
-    }
-    return dbUserObj;
-};
 Auth.prototype.test_genExpiredToken = function(userObj,secret) {
     return genToken(userObj,0,secret);
 };
@@ -109,7 +110,9 @@ function genToken(user, nbrOfDays, secret) {
   var expires = expiresIn(nbrOfDays); // 7 days
   var token = jwt.encode({
     exp: expires,
-    username: user.username
+    username: user.username,
+    organization: user.organization,
+    role: user.role
   }, secret);
   return {
     token: token,

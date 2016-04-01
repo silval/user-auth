@@ -12,11 +12,6 @@ describe('auth unit tests', function() {
     expect(auth.login({ "body" : {} },{ "status" : function () {} , "json" : function() {}},function(msg){ return msg})).to.have.string("INVALID_CREDENTIALS");
   });
 
-  // authorizeUser
-  it('authorizeUser() should return null if user is not authorized', function() {
-    expect(auth.authorizeUser(auth.test_genDummyInvalidUserObj().username)).to.have.null;
-  });
-
   // validateRequest
   it('validateRequest() should return INVALID_TOKEN_OR_KEY error if no token/key is in request', function() {
     expect(auth.validateRequest({ "body" : {}, "headers": {} },{ "status" : function () {} , "json" : function() {}},function(msg){ return msg})).to.have.string("INVALID_TOKEN_OR_KEY");
@@ -35,9 +30,9 @@ describe('auth unit tests', function() {
     expect(auth.validateRequest({ "body" : { "access_token" : token.token, "x_key" : "bla" }, "headers": {} },{ "status" : function () {} , "json" : function() {}},function(msg){ return msg})).to.have.string("INVALID_CREDENTIALS");
   });
 
-  it('validateRequest() should return NOT_AUTHORIZED error if user is not authorized', function() {
-    var token = auth.test_genValidToken(auth.test_genDummyInvalidUserObj(),require('./../src/server/secret')());
-    expect(auth.validateRequest({ "body" : { "access_token" : token.token, "x_key" : token.user.username }, "headers": {} },{ "status" : function () {} , "json" : function() {}},function(msg){ return msg})).to.have.string("NOT_AUTHORIZED");
-  });
+  // it('validateRequest() should return NOT_AUTHORIZED error if user is not authorized', function() {
+  //   var token = auth.test_genValidToken(auth.test_genDummyInvalidUserObj(),require('./../src/server/secret')());
+  //   expect(auth.validateRequest({ "body" : { "access_token" : token.token, "x_key" : token.user.username }, "headers": {} },{ "status" : function () {} , "json" : function() {}},function(msg){ return msg})).to.have.string("NOT_AUTHORIZED");
+  // });
 
 });
