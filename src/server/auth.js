@@ -1,4 +1,7 @@
 var jwt = require('jwt-simple');
+// mongoskin = require('mongoskin');
+
+// this function requires "req.collections.users to be in the request object
 
 function Auth() {
 }
@@ -19,7 +22,7 @@ Auth.prototype.login = function(req, res) {
       return JSON.stringify(retObj);
     }
 
-    var dbUserObj = new Auth().validate(username, password);
+    var dbUserObj = new Auth().authenticateUser(req, username, password);
 
     if (!dbUserObj) { // If authentication fails, we send a 401 back
       res.status(401);
@@ -56,7 +59,7 @@ Auth.prototype.validateRequest= function(req, res, next) {
       }
 
       // Authorize the user to see if s/he can access our resources
-      var dbUser = new Auth().authorizeUser(key, req.url); // The key would be the logged in user's username
+      var dbUser = new Auth().authorizeUser(key, req); // The key would be the logged in user's username
 
       if (dbUser && dbUser != null) {
         next(); // To move to next middleware
@@ -72,13 +75,13 @@ Auth.prototype.validateRequest= function(req, res, next) {
   }
 };
 
-Auth.prototype.validate = function(username, password) {
+Auth.prototype.authenticateUser = function(req, username, password) {
     // spoofing the DB response for simplicity
     var dbUserObj = new Auth().test_genDummyUserObj();
     return dbUserObj;
 };
 
-Auth.prototype.authorizeUser = function(username, url) {
+Auth.prototype.authorizeUser = function(username, req) {
     // spoofing the DB response for simplicity
     var dbUserObj = null;
     if (username == "joe@doe.com") {
